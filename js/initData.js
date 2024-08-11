@@ -1,6 +1,3 @@
-// GitHub API를 사용하여 폴더 내의 파일 목록 가져오기 (스키마 및 url 참고)
-// https://api.github.com/repos/paullabkorea/github_blog/contents/menu
-// https://api.github.com/repos/paullabkorea/github_blog/contents/blog
 let blogList = [];
 let blogMenu = [];
 let isInitData = false;
@@ -19,26 +16,11 @@ async function initDataBlogList() {
     // 데이터 초기화를 한 번 했다는 것을 알리기 위한 변수
     isInitData = true;
 
-    if (isLocal) {
-        // 로컬 환경
-        const response = await fetch(
-            url.origin + "/data/local_blogList.json"
-        );
-        blogList = await response.json();
-    } else {
-        let response = await fetch(
-            url.origin
-            + `/data/local_blogList.json`
-        );
-        blogList = await response.json()
-    }
-
-    blogList = blogList.filter((post) => {
-        const postInfo = extractFileInfo(post.name);
-        if (postInfo) {
-            return post;
-        }
-    });
+    let response = await fetch(
+        url.origin
+        + `/data/local_blogList.json`
+    );
+    blogList = await response.json()
 
     blogList.sort(function (a, b) {
         return b.name.localeCompare(a.name);
@@ -48,24 +30,16 @@ async function initDataBlogList() {
 
 async function initDataBlogMenu() {
     if (blogMenu.length > 0) {
-        // blogMenu 데이터가 이미 있을 경우(API 호출 최소화)
         return blogMenu;
     }
 
-    if (isLocal) {
-        // 로컬환경
-        const response = await fetch(
-            url.origin + "/data/local_blogMenu.json"
-        );
-        blogMenu = await response.json();
-    } else {
-        let response;
+    let response;
 
-        response = await fetch(
-            url.origin
-            + `/data/local_blogMenu.json`
-        );
-        blogMenu = await response.json();
-    }
+    response = await fetch(
+        url.origin
+        + `/data/local_blogMenu.json`
+    );
+    blogMenu = await response.json();
+
     return blogMenu;
 }

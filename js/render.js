@@ -12,27 +12,17 @@ function search(keyword, kinds) {
             initDataBlogList().then(() => {
                 search(keyword);
             });
-            return;
         }
     } else {
         if (!keyword) {
-            const searchInput = document.getElementById("search-input");
-            const searchKeyword = searchInput.value.toLowerCase(); // 검색어를 소문자로 변환
-            const searchResult = blogList.filter((post) => {
-                // 대소문자 가리지 않고 검색
-                if (post.name.toLowerCase().includes(searchKeyword)) {
-                    return post;
-                }
-            });
-            renderBlogList(searchResult);
+            renderBlogList(blogList);
         } else {
             // 만약 kinds가 있을 경우 해당 종류대로 검색(카테고리면 카테고리, 이름이면 이름)
             if (kinds) {
                 const searchResult = blogList.filter((post) => {
                     if (kinds === "category") {
                         // post를 parsing하여 카테고리 내 검색
-                        const postInfo = extractFileInfo(post.name);
-                        if (postInfo.category.toLowerCase() === keyword) {
+                        if (post.category.toLowerCase() === keyword) {
                             return post;
                         }
                     }
@@ -68,8 +58,7 @@ async function renderMenu() {
 
         link.href = menu.download_url;
         // 확장자를 제외하고 이름만 innerText로 사용
-        const menuName = menu.name.split(".")[0];
-        link.innerText = menuName;
+        link.innerText = menu.name.split(".")[0];
 
         link.onclick = (event) => {
             // 메뉴 링크 클릭 시 이벤트 중지 후 menu 내용을 읽어와 contents 영역에 렌더링
@@ -103,7 +92,7 @@ async function renderMenu() {
     window.addEventListener("click", (event) => {
         // 화면의 크기가 md 보다 작을 때만 동작
         if (window.innerWidth <= 768) {
-            if (event.target == searchButton) {
+            if (event.target === searchButton) {
                 searchInputShow = !searchInputShow;
                 if (searchInputShow) {
                     searchButton.classList.add("active");
@@ -114,7 +103,7 @@ async function renderMenu() {
                     searchCont.classList.add("hidden");
                     searchInputShow = false;
                 }
-            } else if (event.target == searchCont) {
+            } else if (event.target === searchCont) {
             } else {
                 searchButton.classList.remove("active");
                 searchCont.classList.add("hidden");
@@ -123,7 +112,7 @@ async function renderMenu() {
         }
     });
 
-    window.addEventListener("resize", (event) => {
+    window.addEventListener("resize", () => {
         if (window.innerWidth > 768) {
             searchButton.classList.add("active");
             searchCont.classList.remove("hidden");
@@ -212,7 +201,7 @@ function createCardElement(fileInfo, index) {
     cardBody.appendChild(title);
 
     const description = document.createElement("p");
-    if (index == 0) {
+    if (index === 0) {
         description.classList.add(
             ...bloglistFirstCardDescriptionStyle.split(" "));
     } else {
@@ -226,14 +215,14 @@ function createCardElement(fileInfo, index) {
     cardBody.appendChild(authorDiv);
 
     const authorImg = document.createElement("img");
-    authorImg.src = users[fileInfo.author]["img"];
-    authorImg.alt = users[fileInfo.author]["username"];
+    authorImg.src = users["img"];
+    authorImg.alt = users["username"];
     authorImg.classList.add(...bloglistCardAuthorImgStyle.split(" "));
     authorDiv.appendChild(authorImg);
 
     const author = document.createElement("p");
     author.classList.add(...bloglistCardAuthorStyle.split(" "));
-    author.textContent = users[fileInfo.author]["username"];
+    author.textContent = users["username"];
     authorDiv.appendChild(author);
 
     const date = document.createElement("p");
@@ -265,37 +254,34 @@ function renderBlogList(searchResult = null, currentPage = 1) {
 
         const startIndex = (currentPage - 1) * pageUnit;
         const endIndex = currentPage * pageUnit;
-        searchResult.slice(startIndex, endIndex).forEach((post, index) => {
-            const postInfo = extractFileInfo(post.name);
-            if (postInfo) {
-                const cardElement = createCardElement(postInfo, index);
+        searchResult.slice(startIndex, endIndex).forEach((postInfo, index) => {
+            const cardElement = createCardElement(postInfo, index);
 
-                cardElement.onclick = (event) => {
-                    // 블로그 게시글 링크 클릭 시 이벤트 중지 후 post 내용을 읽어와 contents 영역에 렌더링
-                    event.preventDefault();
-                    // contents 영역을 보이게 처리
-                    document.getElementById("contents").style.display = "block";
-                    // blog-posts 영역을 보이지 않게 처리
-                    document.getElementById(
-                        "blog-posts").style.display = "none";
-                    document.getElementById(
-                        "pagination").style.display = "none";
-                    fetch(post.download_url)
-                    .then((response) => response.text())
-                    .then((text) =>
-                        postInfo.fileType === "md"
-                            ? styleMarkdown("post", text, postInfo)
-                            : styleJupyter("post", text, postInfo)
-                    )
-                    .then(() => {
-                        // 렌더링 후에는 URL 변경(query string으로 블로그 포스트 이름 추가)
-                        const url = new URL(origin);
-                        url.searchParams.set("post", post.name);
-                        window.history.pushState({}, "", url);
-                    });
-                };
-                document.getElementById("blog-posts").appendChild(cardElement);
-            }
+            cardElement.onclick = (event) => {
+                // 블로그 게시글 링크 클릭 시 이벤트 중지 후 post 내용을 읽어와 contents 영역에 렌더링
+                event.preventDefault();
+                // contents 영역을 보이게 처리
+                document.getElementById("contents").style.display = "block";
+                // blog-posts 영역을 보이지 않게 처리
+                document.getElementById(
+                    "blog-posts").style.display = "none";
+                document.getElementById(
+                    "pagination").style.display = "none";
+                fetch(post.download_url)
+                .then((response) => response.text())
+                .then((text) =>
+                    postInfo.fileType === "md"
+                        ? styleMarkdown("post", text, postInfo)
+                        : styleJupyter("post", text, postInfo)
+                )
+                .then(() => {
+                    // 렌더링 후에는 URL 변경(query string으로 블로그 포스트 이름 추가)
+                    const url = new URL(origin);
+                    url.searchParams.set("post", post.id);
+                    window.history.pushState({}, "", url);
+                });
+            };
+            document.getElementById("blog-posts").appendChild(cardElement);
         });
         // contents 영역을 보이지 않게 처리
         document.getElementById("contents").style.display = "none";
@@ -314,7 +300,7 @@ function renderBlogList(searchResult = null, currentPage = 1) {
 
         // console.log("blogList", blogList);
         blogList.slice(startIndex, endIndex).forEach((post, index) => {
-            const postInfo = extractFileInfo(post.name);
+            const postInfo = post
             if (postInfo) {
                 // console.log(postInfo)
                 const cardElement = createCardElement(postInfo, index);
@@ -330,14 +316,10 @@ function renderBlogList(searchResult = null, currentPage = 1) {
                     document.getElementById(
                         "pagination").style.display = "none";
 
-                    // console.log(post)
-                    // console.log(post.download_url)
                     let postDownloadUrl;
-                    if (!isLocal) {
-                        postDownloadUrl = `${url.origin}/${post.download_url}`;
-                    } else {
-                        postDownloadUrl = post.download_url;
-                    }
+
+                    postDownloadUrl = post.download_url;
+
                     try {
                         fetch(postDownloadUrl)
                         .then((response) => response.text())
@@ -349,7 +331,7 @@ function renderBlogList(searchResult = null, currentPage = 1) {
                         .then(() => {
                             // 렌더링 후에는 URL 변경(query string으로 블로그 포스트 이름 추가)
                             const url = new URL(origin);
-                            url.searchParams.set("post", post.name);
+                            url.searchParams.set("post", post.id);
                             window.history.pushState({}, "", url);
                         });
                     } catch (error) {
@@ -380,14 +362,11 @@ function renderOtherContents(menu) {
             name: menu.split("/")[menu.split("/").length - 1],
         };
     }
-    // console.log(menu)
-    // console.log(menu.download_url)
+
     let menuDownloadUrl;
-    if (!isLocal) {
-        menuDownloadUrl = `${url.origin}/${menu.download_url}`;
-    } else {
-        menuDownloadUrl = menu.download_url;
-    }
+
+    menuDownloadUrl = menu.download_url;
+
     try {
         fetch(menuDownloadUrl)
         .then((response) => response.text())
@@ -409,13 +388,10 @@ function renderBlogCategory() {
       */
     const categoryList = {};
     blogList.forEach((post) => {
-        const postInfo = extractFileInfo(post.name);
-        if (postInfo) {
-            if (categoryList[postInfo.category.toLowerCase()]) {
-                categoryList[postInfo.category.toLowerCase()] += 1;
-            } else {
-                categoryList[postInfo.category.toLowerCase()] = 1;
-            }
+        if (categoryList[post.category.toLowerCase()]) {
+            categoryList[post.category.toLowerCase()] += 1;
+        } else {
+            categoryList[post.category.toLowerCase()] = 1;
         }
     });
     const categoryArray = Object.keys(categoryList);
@@ -455,7 +431,7 @@ function renderBlogCategory() {
         if (categoryList[category]) {
             categoryItem.classList.add(...categoryItemStyle.split(" "));
             categoryItem.textContent = category;
-            categoryItem.onclick = (event) => {
+            categoryItem.onclick = () => {
                 search(category, "category");
             };
 
@@ -464,7 +440,7 @@ function renderBlogCategory() {
         } else {
             categoryItem.classList.add(...categoryItemStyle.split(" "));
             categoryItem.textContent = category;
-            categoryItem.onclick = (event) => {
+            categoryItem.onclick = () => {
                 search();
             };
 
@@ -514,7 +490,6 @@ function initPagination(totalPage) {
     }
     if (totalPage <= 1) {
         pagination.style.display = "none";
-        return;
     }
 }
 
@@ -555,7 +530,7 @@ function renderPagination(totalPage, currentPage, targetList = null) {
                 page.classList.remove(...pageNumberActiveStyle.split(" "));
                 page.classList.add("font-normal");
             }
-            page.onclick = (event) => {
+            page.onclick = () => {
                 renderBlogList(targetList, index + 1);
                 renderPagination(totalPage, index + 1, targetList);
             };
@@ -616,7 +591,7 @@ function renderPagination(totalPage, currentPage, targetList = null) {
             } else {
                 page.style.pointerEvents = "all";
 
-                page.onclick = (event) => {
+                page.onclick = () => {
                     renderPagination(totalPage, indexList[index], targetList);
                 };
             }
@@ -628,7 +603,7 @@ async function initialize() {
     if (!url.search.split("=")[1] || url.search.split("=")[1] === "blog.md") {
         // 메뉴 로딩
         await initDataBlogMenu();
-        renderMenu();
+        await renderMenu();
 
         // 블로그 리스트 로딩
         await initDataBlogList();
@@ -639,7 +614,7 @@ async function initialize() {
     } else {
         // 메뉴 로딩
         await initDataBlogMenu();
-        renderMenu();
+        await renderMenu();
 
         // 블로그 상세 정보 로딩
         if (url.search.split("=")[0] === "?menu") {
@@ -650,7 +625,6 @@ async function initialize() {
                 .then((response) => response.text())
                 .then((text) => styleMarkdown("menu", text))
                 .then(() => {
-                    // 렌더링 후에는 URL 변경(query string으로 블로그 포스트 이름 추가)
                     const url = new URL(window.location.href);
                     window.history.pushState({}, "", url);
                 });
@@ -662,8 +636,6 @@ async function initialize() {
             document.getElementById("blog-posts").style.display = "none";
             postNameDecode = decodeURI(url.search.split("=")[1]).replaceAll("+",
                 " ");
-            // console.log(postNameDecode);
-            postInfo = extractFileInfo(postNameDecode);
             try {
                 fetch(origin + "blog/" + postNameDecode)
                 .then((response) => response.text())

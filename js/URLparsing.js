@@ -4,9 +4,6 @@ const url = new URL(window.location.href);
 const origin = url.origin + url.pathname;
 const pathParts = url.pathname.split("/").filter((part) => part.length > 0);
 
-// 로켈 테스트 환경(127.0.0.1)인지 github 배포 상태인지 확인
-const isLocal = url.hostname === "127.0.0.1" || url.hostname === "localhost";
-
 // 현재 URL에서 "index.html"을 제거하고자 할 때
 if (window.location.pathname.endsWith("/index.html")) {
     // 새 경로를 생성합니다. "index.html"을 제거합니다.
@@ -18,50 +15,29 @@ if (window.location.pathname.endsWith("/index.html")) {
     history.replaceState(null, "", newPath);
 }
 
-if (isLocal) {
-    // 로컬 테스트 환경
-
-    // 블로그 제목 설정
-    const $blogTitle = document.getElementById("blog-title");
-    $blogTitle.innerText = siteConfig.blogTitle || defaultTitle;
-
-    // 홈페이지 title을 제목으로 설정
-    document.title = siteConfig.blogTitle || defaultTitle;
-
-    // 클릭했을 때 메인페이지로 이동
-    $blogTitle.onclick = () => {
-        const mainUrl = url.origin
-        window.history.pushState({}, "", mainUrl);
-        renderBlogList();
-    };
-} else {
-    // github 배포 상태
-
-    // config에서 값이 없을 경우 URL에서 추출
-    if (!siteConfig.username || !siteConfig.repositoryName) {
-        const urlConfig = extractFromUrl();
-        siteConfig.username = siteConfig.username || urlConfig.username;
-        siteConfig.repositoryName =
-            siteConfig.repositoryName || urlConfig.repositoryName;
-    }
-
-    // 블로그 제목 설정
-    const $blogTitle = document.getElementById("blog-title");
-    $blogTitle.innerText = siteConfig.blogTitle || defaultTitle;
-
-    // 홈페이지 title을 제목으로 설정
-    document.title = siteConfig.blogTitle || defaultTitle;
-
-    // 클릭했을 때 메인페이지로 이동
-    $blogTitle.onclick = () => {
-        const mainUrl = url.origin
-        window.history.pushState({}, "", mainUrl);
-        renderBlogList();
-    };
+if (!siteConfig.username || !siteConfig.repositoryName) {
+    const urlConfig = extractFromUrl();
+    siteConfig.username = siteConfig.username || urlConfig.username;
+    siteConfig.repositoryName =
+        siteConfig.repositoryName || urlConfig.repositoryName;
 }
 
+// 블로그 제목 설정
+const $blogTitle = document.getElementById("blog-title");
+$blogTitle.innerText = siteConfig.blogTitle || defaultTitle;
+
+// 홈페이지 title을 제목으로 설정
+document.title = siteConfig.blogTitle || defaultTitle;
+
+// 클릭했을 때 메인페이지로 이동
+$blogTitle.onclick = () => {
+    const mainUrl = url.origin
+    window.history.pushState({}, "", mainUrl);
+    renderBlogList();
+};
+
 // 브라우저의 뒤로가기/앞으로가기 버튼 처리
-window.addEventListener("popstate", (event) => {
+window.addEventListener("popstate", () => {
     // 뒤로 가는 것은 3가지 케이스가 있을 수 있음
     // 1. 뒤로 갔을 때 메인 페이지(/), 뒤로 갔을 때 블로그 리스트 페이지(/?menu=blog.md) (실제로는 동일)
     // 2. 뒤로 갔을 때 menu 페이지(/?menu=about.md)

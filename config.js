@@ -10,12 +10,10 @@ const siteConfig = {
 
 // 여러명의 저자가 글을 쓸 경우 프로필 설정, default는 0번째 사용자
 // 저자는 파일에서 숫자로 사용해야 함
-const users = [
+const users =
     {
-        id: 0, // default author
         username: "Albert",
         company: "None",
         position: "Backend Developer",
         img: "img/user/profile-albert.png",
-    },
-];
+    }
