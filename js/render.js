@@ -7,6 +7,7 @@ function search(keyword, kinds) {
     keyword = keyword ? keyword.toLowerCase().trim() : "";
 
     if (blogList.length === 0) {
+        console.log("searchKeyword1", searchKeyword);
         if (isInitData === false) {
             // 데이터 초기화가 되지 않은 경우에만 검색 허용. 이 작업을 하지 않으면 데이터가 없을 때 무한 루프에 빠지게 됨.
             initDataBlogList().then(() => {
@@ -14,6 +15,7 @@ function search(keyword, kinds) {
             });
         }
     } else {
+        console.log("searchKeyword2", keyword);
         if (!keyword) {
             renderBlogList(blogList);
         } else {
@@ -30,9 +32,10 @@ function search(keyword, kinds) {
                 renderBlogList(searchResult);
             } else {
                 const searchKeyword = keyword.toLowerCase();
+                console.log("searchKeyword", searchKeyword);
                 const searchResult = blogList.filter((post) => {
                     // 대소문자 가리지 않고 검색
-                    if (post.name.toLowerCase().includes(searchKeyword)) {
+                    if (post.title.toLowerCase().includes(searchKeyword)) {
                         return post;
                     }
                 });
@@ -127,7 +130,7 @@ async function renderMenu() {
     searchInput.onkeyup = (event) => {
         if (event.key === "Enter") {
             // 엔터키 입력 시 검색 실행
-            search();
+            search(searchInput.value);
         }
     };
 
@@ -242,6 +245,7 @@ function renderBlogList(searchResult = null, currentPage = 1) {
       2. 검색을 했을 때에만 searchResult에 목록이 담겨 들어옴
       */
     const pageUnit = 10;
+    console.log("searchResult", searchResult);
 
     if (searchResult) {
         // 검색 keyword가 있을 경우
@@ -628,7 +632,6 @@ async function initialize() {
     await initDataBlogList();
     if (!url.search.split("=")[1] || url.search.split("=")[1] === "blog.md") {
         // 메뉴 로딩
-        console.log("menu");
         await initDataBlogMenu();
         await renderMenu();
         await renderBlogList();
