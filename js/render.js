@@ -383,24 +383,19 @@ function renderOtherContents(menu) {
 }
 
 function renderBlogCategory() {
-    /*
-      blogList에서 카테고리를 소문자로 추출하여 카테고리 목록을 aside 항목으로 렌더링
-      */
     const categoryList = {};
-    blogList.forEach((post) => {
-        if (categoryList[post.category.toLowerCase()]) {
-            categoryList[post.category.toLowerCase()] += 1;
-        } else {
-            categoryList[post.category.toLowerCase()] = 1;
-        }
-    });
-    const categoryArray = Object.keys(categoryList);
-    categoryArray.sort();
 
-    const categoryContainer = document.querySelector("aside");
+    let categoryContainer = document.querySelector("aside");
     categoryContainer.classList.add(...categoryContainerStyle.split(" "));
+    if (!categoryContainer) {
+        categoryContainer = document.createElement("aside");
+        categoryContainer.classList.add(...categoryContainerStyle.split(" "));
+    }
+    let categoryWrapper = document.querySelector(".category-aside");
+    if (!categoryWrapper) {
+        categoryWrapper = document.createElement(".category-aside");
+    }
 
-    const categoryWrapper = document.querySelector(".category-aside");
     const categoryTitle = categoryWrapper.querySelector(".aside-tit");
     const categoryButton = document.getElementById("aside-button");
     window.addEventListener("click", (evt) => {
@@ -409,6 +404,8 @@ function renderBlogCategory() {
             categoryWrapper.classList.toggle("active");
             categoryTitle.classList.toggle("sr-only");
             categoryContainer.classList.toggle("md:flex");
+            createIdForH2();
+            addEventForH2();
         } else if (
             categoryWrapper.classList.contains("active") &&
             !categoryWrapper.contains(evt.target)
@@ -419,38 +416,67 @@ function renderBlogCategory() {
         }
     });
 
-    categoryArray.unshift("All");
+    // query가 post일 경우에는 h2모두 차가 해서 category를 만든다.
+    if (url.search.split("=")[0] === "?post") {
+        const allTitle = document.querySelectorAll("h2")
 
-    categoryArray.forEach((category) => {
-        // category div
-        const categoryItem = document.createElement("div");
+        allTitle.forEach((title) => {
+            if (title.textContent !== "content") {
+                const categoryItem = document.createElement("div");
+                categoryItem.classList.add(...categoryItemStyle.split(" "));
+                categoryItem.textContent = title.textContent;
+                categoryItem.onclick = () => {
+                    window.location.hash = title.id;
+                };
+                categoryContainer.appendChild(categoryItem);
+            }
+        });
+    } else {
+        blogList.forEach((post) => {
+            if (categoryList[post.category.toLowerCase()]) {
+                categoryList[post.category.toLowerCase()] += 1;
+            } else {
+                categoryList[post.category.toLowerCase()] = 1;
+            }
+        });
+        const categoryArray = Object.keys(categoryList);
+        categoryArray.sort();
 
-        // category count span
-        const categoryCount = document.createElement("span");
+        categoryArray.unshift("All");
 
-        if (categoryList[category]) {
-            categoryItem.classList.add(...categoryItemStyle.split(" "));
-            categoryItem.textContent = category;
-            categoryItem.onclick = () => {
-                search(category, "category");
-            };
+        categoryArray.forEach((category) => {
+            // category div
+            const categoryItem = document.createElement("div");
 
-            categoryCount.classList.add(...categoryItemCountStyle.split(" "));
-            categoryCount.textContent = `(${categoryList[category]})`;
-        } else {
-            categoryItem.classList.add(...categoryItemStyle.split(" "));
-            categoryItem.textContent = category;
-            categoryItem.onclick = () => {
-                search();
-            };
+            // category count span
+            const categoryCount = document.createElement("span");
 
-            categoryCount.classList.add(...categoryItemCountStyle.split(" "));
-            categoryCount.textContent = `(${blogList.length})`;
-        }
+            if (categoryList[category]) {
+                categoryItem.classList.add(...categoryItemStyle.split(" "));
+                categoryItem.textContent = category;
+                categoryItem.onclick = () => {
+                    search(category, "category");
+                };
 
-        categoryItem.appendChild(categoryCount);
-        categoryContainer.appendChild(categoryItem);
-    });
+                categoryCount.classList.add(
+                    ...categoryItemCountStyle.split(" "));
+                categoryCount.textContent = `(${categoryList[category]})`;
+            } else {
+                categoryItem.classList.add(...categoryItemStyle.split(" "));
+                categoryItem.textContent = category;
+                categoryItem.onclick = () => {
+                    search();
+                };
+
+                categoryCount.classList.add(
+                    ...categoryItemCountStyle.split(" "));
+                categoryCount.textContent = `(${blogList.length})`;
+            }
+
+            categoryItem.appendChild(categoryCount);
+            categoryContainer.appendChild(categoryItem);
+        });
+    }
 }
 
 function initPagination(totalPage) {
@@ -600,20 +626,16 @@ function renderPagination(totalPage, currentPage, targetList = null) {
 }
 
 async function initialize() {
+    await initDataBlogList();
     if (!url.search.split("=")[1] || url.search.split("=")[1] === "blog.md") {
         // 메뉴 로딩
         await initDataBlogMenu();
         await renderMenu();
 
-        // 블로그 리스트 로딩
-        await initDataBlogList();
-        renderBlogList();
+        await renderBlogList();
 
-        // 블로그 카테고리 로딩
-        renderBlogCategory();
     } else {
         // 블로그 리스트 로딩
-        await initDataBlogList();
         // 메뉴 로딩
         await initDataBlogMenu();
         await renderMenu();
@@ -638,15 +660,15 @@ async function initialize() {
             document.getElementById("blog-posts").style.display = "none";
             const postId = decodeURI(url.search.split("=")[1]).replaceAll("+",
                 " ");
-            const postInfo = blogList.find((post) => post.id.toString() === postId);
+            const postInfo = blogList.find(
+                (post) => post.id.toString() === postId);
             try {
-                fetch(origin + "blog/" + postInfo.date + ".md")
+                await fetch(origin + "blog/" + postInfo.date + ".md")
                 .then((response) => response.text())
-                .then((text) => {
-                        return postInfo.fileType === "md"
-                            ? styleMarkdown("post", text, postInfo)
-                            : styleJupyter("post", text, postInfo)
-                    }
+                .then((text) =>
+                    postInfo.fileType === "md"
+                        ? styleMarkdown("post", text, postInfo)
+                        : styleJupyter("post", text, postInfo)
                 )
                 .then(() => {
                     // 렌더링 후에는 URL 변경(query string으로 블로그 포스트 이름 추가)
@@ -658,6 +680,40 @@ async function initialize() {
             }
         }
     }
+    renderBlogCategory();
 }
+
+// 모든 h2를 찾아 text로 id를 만들어주는 함수
+function createIdForH2() {
+    const h2List = document.querySelectorAll("h2");
+    h2List.forEach((h2) => {
+        h2.id = h2.textContent.replace(/ /g, "-");
+    });
+}
+
+// h2를 클릭시 해당 h2로 이동하고 url에 #id 추가
+function addEventForH2() {
+    const h2List = document.querySelectorAll("h2");
+    h2List.forEach((h2) => {
+        h2.addEventListener("click", () => {
+            window.location.hash = h2.id;
+        });
+    });
+}
+
+// #id로 이동하는 함수
+function moveHash() {
+    // hash가 한글이 포함되어 있을 경우 decodeURI를 사용하여 해결
+    let hash = decodeURI(window.location.hash);
+    createIdForH2()
+    addEventForH2()
+    if (hash) {
+        const target = document.querySelector(hash);
+        target.scrollIntoView();
+    }
+}
+
+// 해시가 변경하면 moveHash 함수 실행
+window.addEventListener("hashchange", moveHash);
 
 initialize();

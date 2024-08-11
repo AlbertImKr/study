@@ -67,11 +67,12 @@ window.addEventListener("popstate", () => {
         } else if (url.search.split("=")[0] === "?post") {
             document.getElementById("contents").style.display = "block";
             document.getElementById("blog-posts").style.display = "none";
-            postNameDecode = decodeURI(url.search.split("=")[1]).replaceAll("+",
+            const postId = decodeURI(url.search.split("=")[1]).replaceAll("+",
                 " ");
+            const postInfo = blogList.find(
+                (post) => post.id.toString() === postId);
             // console.log(postNameDecode);
-            postInfo = extractFileInfo(postNameDecode);
-            fetch(origin + "blog/" + postNameDecode)
+            fetch(origin + "blog/" + postInfo.date + ".md")
             .then((response) => response.text())
             .then((text) =>
                 postInfo.fileType === "md"
