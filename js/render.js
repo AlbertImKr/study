@@ -384,8 +384,7 @@ function renderOtherContents(menu) {
     // console.log(menu.download_url)
     let menuDownloadUrl;
     if (!isLocal) {
-        menuDownloadUrl =
-            menu.download_url = `${url.origin}/${menu.download_url}`;
+        menuDownloadUrl = `${url.origin}/${menu.download_url}`;
     } else {
         menuDownloadUrl = menu.download_url;
     }
