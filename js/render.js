@@ -382,54 +382,20 @@ function renderOtherContents(menu) {
     }
 }
 
-function renderBlogCategory() {
-    const categoryList = {};
-
-    let categoryContainer = document.querySelector("aside");
-    categoryContainer.classList.add(...categoryContainerStyle.split(" "));
-    if (!categoryContainer) {
-        categoryContainer = document.createElement("aside");
-        categoryContainer.classList.add(...categoryContainerStyle.split(" "));
-    }
-    let categoryWrapper = document.querySelector(".category-aside");
-    if (!categoryWrapper) {
-        categoryWrapper = document.createElement(".category-aside");
-    }
-
-    const categoryTitle = categoryWrapper.querySelector(".aside-tit");
-    const categoryButton = document.getElementById("aside-button");
-    window.addEventListener("click", (evt) => {
-        // categoryButton을 눌렀을 때
-        if (evt.target === categoryButton) {
-            categoryWrapper.classList.toggle("active");
-            categoryTitle.classList.toggle("sr-only");
-            categoryContainer.classList.toggle("md:flex");
-            createIdForH2();
-            addEventForH2();
-        } else if (
-            categoryWrapper.classList.contains("active") &&
-            !categoryWrapper.contains(evt.target)
-        ) {
-            categoryWrapper.classList.remove("active");
-            categoryTitle.classList.add("sr-only");
-            categoryContainer.classList.remove("md:flex");
-        }
-    });
-
-    // query가 post일 경우에는 h2모두 차가 해서 category를 만든다.
+function renderCategoryDetail(categoryContainer, categoryList) {
+    categoryContainer.innerHTML = "";
+    const url = new URL(window.location.href);
     if (url.search.split("=")[0] === "?post") {
-        const allTitle = document.querySelectorAll("h2")
+        const allTitle = document.querySelectorAll(".content-heading")
 
         allTitle.forEach((title) => {
-            if (title.textContent !== "content") {
-                const categoryItem = document.createElement("div");
-                categoryItem.classList.add(...categoryItemStyle.split(" "));
-                categoryItem.textContent = title.textContent;
-                categoryItem.onclick = () => {
-                    window.location.hash = title.id;
-                };
-                categoryContainer.appendChild(categoryItem);
-            }
+            const categoryItem = document.createElement("div");
+            categoryItem.classList.add(...categoryItemStyle.split(" "));
+            categoryItem.textContent = title.textContent;
+            categoryItem.onclick = () => {
+                window.location.hash = title.id;
+            };
+            categoryContainer.appendChild(categoryItem);
         });
     } else {
         blogList.forEach((post) => {
@@ -477,6 +443,38 @@ function renderBlogCategory() {
             categoryContainer.appendChild(categoryItem);
         });
     }
+}
+
+function renderBlogCategory() {
+    const categoryList = {};
+
+    let categoryContainer = document.querySelector("aside");
+    categoryContainer.classList.add(...categoryContainerStyle.split(" "));
+
+    let categoryWrapper = document.querySelector(".category-aside");
+
+    const categoryTitle = categoryWrapper.querySelector(".aside-tit");
+    const categoryButton = document.getElementById("aside-button");
+    window.addEventListener("click", (evt) => {
+        // categoryButton을 눌렀을 때
+        if (evt.target === categoryButton) {
+            categoryWrapper.classList.toggle("active");
+            categoryTitle.classList.toggle("sr-only");
+            categoryContainer.classList.toggle("md:flex");
+            renderCategoryDetail(categoryContainer, categoryList);
+            createIdForH2();
+            addEventForH2();
+        } else if (
+            categoryWrapper.classList.contains("active") &&
+            !categoryWrapper.contains(evt.target)
+        ) {
+            categoryWrapper.classList.remove("active");
+            categoryTitle.classList.add("sr-only");
+            categoryContainer.classList.remove("md:flex");
+        }
+    });
+
+    renderCategoryDetail(categoryContainer, categoryList);
 }
 
 function initPagination(totalPage) {
@@ -629,11 +627,10 @@ async function initialize() {
     await initDataBlogList();
     if (!url.search.split("=")[1] || url.search.split("=")[1] === "blog.md") {
         // 메뉴 로딩
+        console.log("menu");
         await initDataBlogMenu();
         await renderMenu();
-
         await renderBlogList();
-
     } else {
         // 블로그 리스트 로딩
         // 메뉴 로딩

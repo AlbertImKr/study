@@ -1,7 +1,4 @@
 function styleMarkdown(kinds, text, title_info = null) {
-    if (!title_info) {
-        return;
-    }
     /*
       메뉴와 블로그 상세 목록을 globalStyle.js에 정의된 tailwind css로 스타일링 합니다.
       */
