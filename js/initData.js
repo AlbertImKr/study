@@ -59,21 +59,11 @@ async function initDataBlogMenu() {
         );
         blogMenu = await response.json();
     } else {
-        // GitHub 배포 상태
-        // 만약 siteConfig.username이 비어있거나 siteConfig.repositoryName이 비어 있다면 해당 값을 지정하여 시작
-        // config에서 값이 없을 경우 URL에서 추출
-        if (!siteConfig.username || !siteConfig.repositoryName) {
-            const urlConfig = extractFromUrl();
-            siteConfig.username = siteConfig.username || urlConfig.username;
-            siteConfig.repositoryName =
-                siteConfig.repositoryName || urlConfig.repositoryName;
-        }
-
         let response;
 
         response = await fetch(
             url.origin
-            + `/${siteConfig.repositoryName}/data/local_blogMenu.json`
+            + `/data/local_blogMenu.json`
         );
         blogMenu = await response.json();
     }
