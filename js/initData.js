@@ -30,7 +30,7 @@ async function initDataBlogList() {
             url.origin
             + `/data/local_blogList.json`
         );
-        blogList = response.json()
+        blogList = await response.json()
     }
 
     blogList = blogList.filter((post) => {
