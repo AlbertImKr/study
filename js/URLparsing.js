@@ -20,12 +20,6 @@ $blogTitle.innerText = siteConfig.blogTitle || defaultTitle;
 // 홈페이지 title을 제목으로 설정
 document.title = siteConfig.blogTitle || defaultTitle;
 
-// 클릭했을 때 메인페이지로 이동
-$blogTitle.onclick = () => {
-    window.history.pushState({}, "", origin);
-    renderBlogList();
-};
-
 // 브라우저의 뒤로가기/앞으로가기 버튼 처리
 window.addEventListener("popstate", () => {
     // 뒤로 가는 것은 3가지 케이스가 있을 수 있음

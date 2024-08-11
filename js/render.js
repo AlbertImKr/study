@@ -33,7 +33,6 @@ function search(keyword, kinds) {
                 renderBlogList(searchResult);
             } else {
                 const searchKeyword = keyword.toLowerCase();
-                console.log("searchKeyword", searchKeyword);
                 const searchResult = blogList.filter((post) => {
                     // 대소문자 가리지 않고 검색
                     if (post.title.toLowerCase().includes(searchKeyword)) {
@@ -393,6 +392,7 @@ function renderOtherContents(menu) {
 function renderCategoryDetail(categoryContainer) {
     const categoryList = {};
     categoryContainer.innerHTML = "";
+    // console.log("blogList", blogList);
     if (url.search.split("=")[0] === "?post") {
         const allTitle = document.querySelectorAll(".content-heading")
 
@@ -679,6 +679,16 @@ async function initialize() {
     }
     renderBlogCategory();
 }
+
+// 클릭했을 때 메인페이지로 이동
+$blogTitle.onclick = (e) => {
+    e.preventDefault();
+    window.history.pushState({}, "", origin);
+    url.searchParams.forEach((_, key) => url.searchParams.delete(key));
+    renderBlogList();
+    const categoryContainer = document.querySelector("aside");
+    renderCategoryDetail(categoryContainer);
+};
 
 // #id로 이동하는 함수
 function moveHash() {
