@@ -1,7 +1,7 @@
 const url = new URL(window.location.href);
 const origin = url.origin + url.pathname;
-const pathParts = url.pathname.split("/").filter((part) => part.length > 0);
 
+const pathParts = url.pathname.split("/").filter((part) => part.length > 0);
 // 현재 URL에서 "index.html"을 제거하고자 할 때
 if (window.location.pathname.endsWith("/index.html")) {
     // 새 경로를 생성합니다. "index.html"을 제거합니다.
@@ -22,8 +22,7 @@ document.title = siteConfig.blogTitle || defaultTitle;
 
 // 클릭했을 때 메인페이지로 이동
 $blogTitle.onclick = () => {
-    const mainUrl = url.origin
-    window.history.pushState({}, "", mainUrl);
+    window.history.pushState({}, "", origin);
     renderBlogList();
 };
 
