@@ -28,7 +28,7 @@ async function initDataBlogList() {
     } else {
         let response = await fetch(
             url.origin
-            + `/${siteConfig.repositoryName}/data/local_blogList.json`
+            + `/data/local_blogList.json`
         );
         blogList = response.json()
     }
