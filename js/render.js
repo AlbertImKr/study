@@ -612,6 +612,8 @@ async function initialize() {
         // 블로그 카테고리 로딩
         renderBlogCategory();
     } else {
+        // 블로그 리스트 로딩
+        await initDataBlogList();
         // 메뉴 로딩
         await initDataBlogMenu();
         await renderMenu();
@@ -634,15 +636,17 @@ async function initialize() {
         } else if (url.search.split("=")[0] === "?post") {
             document.getElementById("contents").style.display = "block";
             document.getElementById("blog-posts").style.display = "none";
-            postNameDecode = decodeURI(url.search.split("=")[1]).replaceAll("+",
+            const postId = decodeURI(url.search.split("=")[1]).replaceAll("+",
                 " ");
+            const postInfo = blogList.find((post) => post.id.toString() === postId);
             try {
-                fetch(origin + "blog/" + postNameDecode)
+                fetch(origin + "blog/" + postInfo.date + ".md")
                 .then((response) => response.text())
-                .then((text) =>
-                    postInfo.fileType === "md"
-                        ? styleMarkdown("post", text, postInfo)
-                        : styleJupyter("post", text, postInfo)
+                .then((text) => {
+                        return postInfo.fileType === "md"
+                            ? styleMarkdown("post", text, postInfo)
+                            : styleJupyter("post", text, postInfo)
+                    }
                 )
                 .then(() => {
                     // 렌더링 후에는 URL 변경(query string으로 블로그 포스트 이름 추가)

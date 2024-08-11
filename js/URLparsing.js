@@ -15,13 +15,6 @@ if (window.location.pathname.endsWith("/index.html")) {
     history.replaceState(null, "", newPath);
 }
 
-if (!siteConfig.username || !siteConfig.repositoryName) {
-    const urlConfig = extractFromUrl();
-    siteConfig.username = siteConfig.username || urlConfig.username;
-    siteConfig.repositoryName =
-        siteConfig.repositoryName || urlConfig.repositoryName;
-}
-
 // 블로그 제목 설정
 const $blogTitle = document.getElementById("blog-title");
 $blogTitle.innerText = siteConfig.blogTitle || defaultTitle;
