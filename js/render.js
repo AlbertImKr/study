@@ -624,6 +624,7 @@ function renderPagination(totalPage, currentPage, targetList = null) {
 }
 
 async function initialize() {
+    const url = new URL(window.location.href);
     await initDataBlogList();
     if (!url.search.split("=")[1] || url.search.split("=")[1] === "blog.md") {
         // 메뉴 로딩
