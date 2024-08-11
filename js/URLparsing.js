@@ -54,7 +54,7 @@ if (isLocal) {
 
     // 클릭했을 때 메인페이지로 이동
     $blogTitle.onclick = () => {
-        const url = new URL(window.location.href);
+        const mainUrl = new URL(window.location.href);
         window.history.pushState({}, "", mainUrl);
         renderBlogList();
     };
