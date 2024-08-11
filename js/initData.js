@@ -26,36 +26,13 @@ async function initDataBlogList() {
         );
         blogList = await response.json();
     } else {
-        // GitHub 배포 상태
-        // 만약 siteConfig.username이 비어있거나 siteConfig.repositoryName이 비어 있다면 해당 값을 지정하여 시작
-        // config에서 값이 없을 경우 URL에서 추출
-        if (!siteConfig.username || !siteConfig.repositoryName) {
-            const urlConfig = extractFromUrl();
-            siteConfig.username = siteConfig.username || urlConfig.username;
-            siteConfig.repositoryName =
-                siteConfig.repositoryName || urlConfig.repositoryName;
-        }
-
-        let response;
-
-        // 배포 상태에서 GitHub API를 사용(이용자가 적을 때)
-        if (!localDataUsing) {
-            response = await fetch(
-                `https://api.github.com/repos/${siteConfig.username}/${siteConfig.repositoryName}/contents/blog`
-            );
-        } else {
-            // 배포 상태에서 Local data를 사용(이용자가 많을 때)
-            response = await fetch(
-                url.origin + `/${siteConfig.repositoryName}/data/local_blogList.json`
-            );
-        }
-        // 배포 상태에서 Local data를 사용(이용자가 많을 때)
-        blogList = await response.json();
+        let response = await fetch(
+            url.origin
+            + `/${siteConfig.repositoryName}/data/local_blogList.json`
+        );
+        blogList = response.json()
     }
 
-    // console.log(blogList);
-
-    // 정규표현식에 맞지 않는 파일은 제외하여 blogList에 재할당
     blogList = blogList.filter((post) => {
         const postInfo = extractFileInfo(post.name);
         if (postInfo) {
@@ -102,7 +79,8 @@ async function initDataBlogMenu() {
         } else {
             // 배포 상태에서 Local data를 사용(이용자가 많을 때)
             response = await fetch(
-                url.origin + `/${siteConfig.repositoryName}/data/local_blogMenu.json`
+                url.origin
+                + `/${siteConfig.repositoryName}/data/local_blogMenu.json`
             );
         }
         blogMenu = await response.json();
