@@ -14,7 +14,6 @@ const registry = {
     // config.js
     'config_siteConfig': siteConfig,
     'config_users': users,
-    'config_localDataUsing': localDataUsing,
     // URLparsing.js
     'URLparsing_defaultTitle': defaultTitle,
     'URLparsing_url': url, // new URL(window.location.href);
