@@ -23,7 +23,7 @@ async function initDataBlogList() {
     blogList = await response.json()
 
     blogList.sort(function (a, b) {
-        return b.name.localeCompare(a.name);
+        return b.date.localeCompare(a.date);
     });
     return blogList;
 }
