@@ -71,18 +71,10 @@ async function initDataBlogMenu() {
 
         let response;
 
-        // 배포 상태에서 GitHub API를 사용(이용자가 적을 때)
-        if (!localDataUsing) {
-            response = await fetch(
-                `https://api.github.com/repos/${siteConfig.username}/${siteConfig.repositoryName}/contents/menu`
-            );
-        } else {
-            // 배포 상태에서 Local data를 사용(이용자가 많을 때)
-            response = await fetch(
-                url.origin
-                + `/${siteConfig.repositoryName}/data/local_blogMenu.json`
-            );
-        }
+        response = await fetch(
+            url.origin
+            + `/${siteConfig.repositoryName}/data/local_blogMenu.json`
+        );
         blogMenu = await response.json();
     }
     return blogMenu;
